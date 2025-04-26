@@ -2,6 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import '../styles/ReportForm.css';
 
+import { db, storage } from '../firebase';
+import { collection, addDoc, Timestamp } from 'firebase/firestore';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+
 const ReportForm = () => {
   const { categoryId } = useParams();
   const navigate = useNavigate();
@@ -12,195 +16,209 @@ const ReportForm = () => {
     location: '',
     date: '',
     time: '',
-    file: null,
+    file: null
   });
-  
+
   const [categoryName, setCategoryName] = useState('');
   const [subcategories, setSubcategories] = useState([]);
-  const [submissionMessage, setSubmissionMessage] = useState('');
-  
+  const [submitted, setSubmitted] = useState(false);
+  const [reportId, setReportId] = useState('');
+
+  // Set category name and available subcategories
   useEffect(() => {
-    // Set category name and subcategories based on the categoryId from URL
-    const categories = {
-      'environmental': {
-        name: 'Environmental',
-        subcategories: ['Illegal Dumping', 'Pollution', 'Wildlife Crime', 'Other Environmental Issue']
-      },
-      'transport': {
-        name: 'Transport',
-        subcategories: ['Dangerous Driving', 'Parking Violations', 'Public Transport Issue', 'Other Transport Issue']
-      },
-      'educational': {
-        name: 'Educational',
-        subcategories: ['Bullying', 'Vandalism', 'Theft', 'Other Educational Issue']
-      },
-      'community': {
-        name: 'Community',
-        subcategories: ['Anti-social Behaviour', 'Noise Complaint', 'Public Property Damage', 'Other Community Issue']
-      },
-      'other': {
-        name: 'Other',
-        subcategories: ['Suspicious Activity', 'Harassment', 'Fraud', 'Other Uncategorized Issue']
-      }
+    const categoryMap = {
+      'environmental': 'Environmental',
+      'transport': 'Transport',
+      'educational': 'Educational',
+      'community': 'Community',
+      'other': 'Other'
     };
     
-    if (categories[categoryId]) {
-      setCategoryName(categories[categoryId].name);
-      setSubcategories(categories[categoryId].subcategories);
-    } else {
-      // Handle invalid category ID
-      navigate('/user-home');
+    setCategoryName(categoryMap[categoryId] || 'Unknown');
+
+    switch(categoryId) {
+      case 'environmental':
+        setSubcategories(['Littering', 'Pollution', 'Illegal Dumping', 'Wildlife Crime', 'Other']);
+        break;
+      case 'transport':
+        setSubcategories(['Traffic Violations', 'Damaged Infrastructure', 'Public Transport Issues', 'Parking Violations', 'Other']);
+        break;
+      case 'educational':
+        setSubcategories(['School Vandalism', 'Bullying', 'Theft', 'Safety Concerns', 'Other']);
+        break;
+      case 'community':
+        setSubcategories(['Vandalism', 'Noise Complaints', 'Public Disturbance', 'Suspicious Activity', 'Other']);
+        break;
+      case 'other':
+        setSubcategories(['Unclassified', 'General Concern', 'Suggestion']);
+        break;
+      default:
+        setSubcategories([]);
     }
-  }, [categoryId, navigate]);
-  
+  }, [categoryId]);
+
+  // Handle input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
-  
+
   const handleFileChange = (e) => {
-    setFormData({
-      ...formData,
+    setFormData(prev => ({
+      ...prev,
       file: e.target.files[0]
-    });
+    }));
   };
-  
-  const handleSubmit = (e) => {
+
+  // Handle form submission and save to Firestore + Storage
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // Generate a mock report ID
-    const reportId = Math.floor(100000 + Math.random() * 900000).toString();
-    
-    // In a real application, you would send this data to your backend
-    console.log('Submitting report:', {
-      reportId,
-      category: categoryName,
-      ...formData
-    });
-    
-    // Show success message with the report ID
-    setSubmissionMessage(`Your report has been submitted. Your Report ID is: ${reportId}`);
-    
-    // Clear form after submission
-    setFormData({
-      subcategory: '',
-      description: '',
-      location: '',
-      date: '',
-      time: '',
-      file: null,
-    });
-    
-    // You could redirect after a delay
-    setTimeout(() => {
-      setSubmissionMessage('');
-      navigate('/user-home');
-    }, 5000);
+
+    try {
+      let fileUrl = null;
+
+      // Upload file if provided
+      if (formData.file) {
+        const fileRef = ref(storage, `evidence/${Date.now()}_${formData.file.name}`);
+        const snapshot = await uploadBytes(fileRef, formData.file);
+        fileUrl = await getDownloadURL(snapshot.ref);
+      }
+
+      // Save report to Firestore
+      const docRef = await addDoc(collection(db, 'reports'), {
+        category: categoryId,
+        subcategory: formData.subcategory,
+        description: formData.description,
+        location: formData.location,
+        date: formData.date,
+        time: formData.time,
+        fileUrl: fileUrl,
+        status: 'pending',
+        submittedAt: Timestamp.now()
+      });
+
+      setReportId(docRef.id);
+      setSubmitted(true);
+    } catch (err) {
+      console.error("Error submitting report:", err);
+      alert("Something went wrong. Please try again.");
+    }
   };
-  
+
+  if (submitted) {
+    return (
+      <div className="report-form-container">
+        <div className="submission-success">
+          <h2>Report Submitted Successfully</h2>
+          <p>Your report has been submitted and will be reviewed soon.</p>
+          <p>Your Report ID is: <strong>{reportId}</strong></p>
+          <p>Please save this ID to check the status of your report later.</p>
+          <div className="submission-buttons">
+            <button onClick={() => navigate('/user-home')}>Back to Home</button>
+            <button onClick={() => navigate(`/check-status?id=${reportId}`)}>Check Status</button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="report-form-container">
-      <h1>Report {categoryName} Issue</h1>
+      <h1>Submit a {categoryName} Report</h1>
       
-      {submissionMessage ? (
-        <div className="submission-message">
-          {submissionMessage}
+      <form className="report-form" onSubmit={handleSubmit}>
+        <div className="form-group">
+          <label htmlFor="subcategory">Subcategory:</label>
+          <select 
+            id="subcategory" 
+            name="subcategory" 
+            value={formData.subcategory}
+            onChange={handleChange}
+            required
+          >
+            <option value="">Select a subcategory</option>
+            {subcategories.map(sub => (
+              <option key={sub} value={sub}>{sub}</option>
+            ))}
+          </select>
         </div>
-      ) : (
-        <form onSubmit={handleSubmit} className="report-form">
+
+        <div className="form-group">
+          <label htmlFor="description">Description:</label>
+          <textarea 
+            id="description" 
+            name="description" 
+            value={formData.description}
+            onChange={handleChange}
+            placeholder="Please provide details about the incident"
+            required
+            rows={5}
+          />
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="location">Location:</label>
+          <input 
+            type="text" 
+            id="location" 
+            name="location" 
+            value={formData.location}
+            onChange={handleChange}
+            placeholder="Where did this occur?"
+            required
+          />
+        </div>
+
+        <div className="form-row">
           <div className="form-group">
-            <label htmlFor="subcategory">Subcategory:</label>
-            <select 
-              id="subcategory" 
-              name="subcategory" 
-              value={formData.subcategory}
+            <label htmlFor="date">Date:</label>
+            <input 
+              type="date" 
+              id="date" 
+              name="date" 
+              value={formData.date}
               onChange={handleChange}
-              required
-            >
-              <option value="">Select a subcategory</option>
-              {subcategories.map((sub, index) => (
-                <option key={index} value={sub}>{sub}</option>
-              ))}
-            </select>
-          </div>
-          
-          <div className="form-group">
-            <label htmlFor="description">Description:</label>
-            <textarea
-              id="description"
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
-              rows="4"
-              placeholder="Describe the issue in detail"
-              required
-            ></textarea>
-          </div>
-          
-          <div className="form-group">
-            <label htmlFor="location">Location:</label>
-            <input
-              type="text"
-              id="location"
-              name="location"
-              value={formData.location}
-              onChange={handleChange}
-              placeholder="Enter the location"
               required
             />
           </div>
-          
-          <div className="form-row">
-            <div className="form-group half">
-              <label htmlFor="date">Date:</label>
-              <input
-                type="date"
-                id="date"
-                name="date"
-                value={formData.date}
-                onChange={handleChange}
-                required
-              />
-            </div>
-            
-            <div className="form-group half">
-              <label htmlFor="time">Time:</label>
-              <input
-                type="time"
-                id="time"
-                name="time"
-                value={formData.time}
-                onChange={handleChange}
-                required
-              />
-            </div>
-          </div>
-          
           <div className="form-group">
-            <label htmlFor="file">Upload Evidence (optional):</label>
-            <input
-              type="file"
-              id="file"
-              name="file"
-              onChange={handleFileChange}
+            <label htmlFor="time">Time:</label>
+            <input 
+              type="time" 
+              id="time" 
+              name="time" 
+              value={formData.time}
+              onChange={handleChange}
+              required
             />
           </div>
-          
-          <div className="form-buttons">
-            <button type="button" onClick={() => navigate('/user-home')} className="cancel-button">
-              Cancel
-            </button>
-            <button type="submit" className="submit-button">
-              Submit Report
-            </button>
-          </div>
-        </form>
-      )}
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="file">Supporting Evidence (optional):</label>
+          <input 
+            type="file" 
+            id="file" 
+            name="file" 
+            onChange={handleFileChange}
+          />
+          <small>Upload photos, videos, or documents related to the incident</small>
+        </div>
+
+        <div className="form-buttons">
+          <button type="button" onClick={() => navigate('/user-home')} className="cancel-button">
+            Cancel
+          </button>
+          <button type="submit" className="submit-button">
+            Submit Report
+          </button>
+        </div>
+      </form>
     </div>
   );
 };
 
-export default ReportForm; 
+export default ReportForm;

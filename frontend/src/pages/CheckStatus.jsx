@@ -1,74 +1,45 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import '../styles/CheckStatus.css';
 
 const CheckStatus = () => {
-  const { reportId } = useParams();
   const navigate = useNavigate();
-  const [searchId, setSearchId] = useState(reportId || '');
-  const [report, setReport] = useState(null);
+  const location = useLocation();
+  const [reportId, setReportId] = useState('');
+  const [searchPerformed, setSearchPerformed] = useState(false);
+  const [reportStatus, setReportStatus] = useState(null);
   const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-
-  // Mock data for demonstration
-  const mockReports = {
-    '123456': { 
-      id: '123456', 
-      category: 'Environmental',
-      subcategory: 'Illegal Dumping',
-      status: 'Pending',
-      dateSubmitted: '2023-05-10',
-      lastUpdated: '2023-05-10'
-    },
-    '234567': {
-      id: '234567',
-      category: 'Transport',
-      subcategory: 'Dangerous Driving',
-      status: 'Accepted',
-      dateSubmitted: '2023-05-05',
-      lastUpdated: '2023-05-08'
-    },
-    '345678': {
-      id: '345678',
-      category: 'Community',
-      subcategory: 'Vandalism',
-      status: 'Flagged',
-      dateSubmitted: '2023-05-01',
-      lastUpdated: '2023-05-07'
-    }
+  
+  // Mock data for report statuses
+  const reportDatabase = {
+    'R001': { status: 'Pending', category: 'Environmental', date: '2023-05-15' },
+    'R002': { status: 'Accepted', category: 'Transport', date: '2023-05-14' },
+    'R003': { status: 'Flagged', category: 'Community', date: '2023-05-13' },
+    'R004': { status: 'Pending', category: 'Educational', date: '2023-05-12' },
+    'R005': { status: 'Accepted', category: 'Other', date: '2023-05-11' },
   };
 
   useEffect(() => {
-    // Check if we have a report ID from the URL
-    if (reportId) {
-      checkReportStatus(reportId);
+    // Check if a report ID was passed in the URL query parameters
+    const params = new URLSearchParams(location.search);
+    const idFromQuery = params.get('id');
+    
+    if (idFromQuery) {
+      setReportId(idFromQuery);
+      handleCheckStatus(idFromQuery);
     }
-  }, [reportId]);
+  }, [location.search]);
 
-  const checkReportStatus = (id) => {
-    setIsLoading(true);
+  const handleCheckStatus = (id = reportId) => {
     setError('');
-
-    // Simulate API call with timeout
-    setTimeout(() => {
-      if (mockReports[id]) {
-        setReport(mockReports[id]);
-      } else {
-        setError('Report not found. Please check the ID and try again.');
-        setReport(null);
-      }
-      setIsLoading(false);
-    }, 1000);
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (searchId.trim()) {
-      // Update URL to include the report ID
-      navigate(`/check-status/${searchId}`);
-      checkReportStatus(searchId);
+    setSearchPerformed(true);
+    
+    // Look up the report in our mock database
+    if (reportDatabase[id]) {
+      setReportStatus(reportDatabase[id]);
     } else {
-      setError('Please enter a Report ID');
+      setReportStatus(null);
+      setError('Report not found. Please check the ID and try again.');
     }
   };
 
@@ -85,67 +56,62 @@ const CheckStatus = () => {
     <div className="check-status-container">
       <h1>Check Report Status</h1>
       
-      <form onSubmit={handleSubmit} className="search-form">
-        <div className="form-group">
-          <label htmlFor="reportId">Report ID:</label>
-          <input
-            type="text"
-            id="reportId"
-            value={searchId}
-            onChange={(e) => setSearchId(e.target.value)}
-            placeholder="Enter your Report ID"
-            required
-          />
-        </div>
-        <button type="submit" className="search-button">
-          Check Status
-        </button>
-      </form>
-      
-      {isLoading && <div className="loading">Loading...</div>}
+      <div className="status-search">
+        <input
+          type="text"
+          placeholder="Enter Report ID (e.g., R001)"
+          value={reportId}
+          onChange={(e) => setReportId(e.target.value)}
+        />
+        <button onClick={() => handleCheckStatus()}>Check Status</button>
+      </div>
       
       {error && <div className="error-message">{error}</div>}
       
-      {report && (
-        <div className="report-status">
-          <h2>Report Details</h2>
-          <div className="status-card">
+      {searchPerformed && reportStatus && (
+        <div className="status-result">
+          <h2>Report Status</h2>
+          <div className="status-details">
             <div className="status-row">
-              <span className="label">Report ID:</span>
-              <span className="value">{report.id}</span>
+              <div className="status-label">Report ID:</div>
+              <div className="status-value">{reportId}</div>
             </div>
             <div className="status-row">
-              <span className="label">Category:</span>
-              <span className="value">{report.category}</span>
+              <div className="status-label">Category:</div>
+              <div className="status-value">{reportStatus.category}</div>
             </div>
             <div className="status-row">
-              <span className="label">Subcategory:</span>
-              <span className="value">{report.subcategory}</span>
+              <div className="status-label">Date Submitted:</div>
+              <div className="status-value">{reportStatus.date}</div>
             </div>
             <div className="status-row">
-              <span className="label">Date Submitted:</span>
-              <span className="value">{report.dateSubmitted}</span>
-            </div>
-            <div className="status-row">
-              <span className="label">Last Updated:</span>
-              <span className="value">{report.lastUpdated}</span>
-            </div>
-            <div className="status-row">
-              <span className="label">Status:</span>
-              <span className={`value status-badge ${getStatusClass(report.status)}`}>
-                {report.status}
-              </span>
+              <div className="status-label">Status:</div>
+              <div className={`status-value ${getStatusClass(reportStatus.status)}`}>
+                {reportStatus.status}
+              </div>
             </div>
           </div>
           
-          <button 
-            className="back-button" 
-            onClick={() => navigate('/user-home')}
-          >
-            Back to Home
-          </button>
+          <div className="status-message">
+            {reportStatus.status === 'Pending' && (
+              <p>Your report is currently being reviewed. Thank you for your patience.</p>
+            )}
+            {reportStatus.status === 'Accepted' && (
+              <p>Your report has been accepted and is being actioned. Thank you for your contribution.</p>
+            )}
+            {reportStatus.status === 'Flagged' && (
+              <p>Your report requires additional information. Please contact our support team.</p>
+            )}
+          </div>
         </div>
       )}
+      
+      <button 
+        className="back-button"
+        onClick={() => navigate('/user-home')}
+      >
+        Back to Home
+      </button>
     </div>
   );
 };

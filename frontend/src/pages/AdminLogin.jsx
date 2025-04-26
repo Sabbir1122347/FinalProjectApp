@@ -16,46 +16,51 @@ const AdminLogin = () => {
       setError('Please enter both email and password');
       return;
     }
-    
-    // For demo purposes, accept any login
-    // In a real app, you would verify credentials with a backend
-    navigate('/admin-home');
+
+    // Mock authentication - in a real app, this would call an API
+    if (email === 'admin@example.com' && password === 'password') {
+      navigate('/admin-home');
+    } else {
+      setError('Invalid credentials');
+    }
   };
 
   return (
     <div className="admin-login-container">
       <h1>Admin Login</h1>
-      <form onSubmit={handleSubmit} className="admin-login-form">
+      <form className="admin-login-form" onSubmit={handleSubmit}>
         {error && <div className="error-message">{error}</div>}
         
         <div className="form-group">
-          <label htmlFor="email">Email</label>
+          <label htmlFor="email">Email:</label>
           <input
             type="email"
             id="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Enter your email"
-            required
           />
         </div>
         
         <div className="form-group">
-          <label htmlFor="password">Password</label>
+          <label htmlFor="password">Password:</label>
           <input
             type="password"
             id="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Enter your password"
-            required
           />
         </div>
         
-        <button type="submit" className="login-button">
-          Login
-        </button>
+        <button type="submit" className="login-button">Login</button>
       </form>
+      <button 
+        className="back-button"
+        onClick={() => navigate('/')}
+      >
+        Back to Main
+      </button>
     </div>
   );
 };

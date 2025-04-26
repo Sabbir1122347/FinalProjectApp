@@ -1,12 +1,14 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import './App.css';
+
+// Import all pages
 import LoginPage from './pages/LoginPage';
 import AdminLogin from './pages/AdminLogin';
 import AdminHome from './pages/AdminHome';
 import UserHome from './pages/UserHome';
 import ReportForm from './pages/ReportForm';
 import CheckStatus from './pages/CheckStatus';
-import './App.css';
 
 function App() {
   return (
@@ -19,8 +21,6 @@ function App() {
           <Route path="/user-home" element={<UserHome />} />
           <Route path="/report-form/:categoryId" element={<ReportForm />} />
           <Route path="/check-status" element={<CheckStatus />} />
-          <Route path="/check-status/:reportId" element={<CheckStatus />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>
     </Router>

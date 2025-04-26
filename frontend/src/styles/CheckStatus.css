@@ -1,82 +1,77 @@
 .check-status-container {
-  padding: 2rem;
   max-width: 800px;
   margin: 0 auto;
+  padding: 30px 20px;
 }
 
 .check-status-container h1 {
-  color: #2c3e50;
-  margin-bottom: 2rem;
+  margin-bottom: 30px;
+  color: #333;
+  font-size: 2rem;
   text-align: center;
 }
 
 .check-status-container h2 {
-  color: #34495e;
-  margin-bottom: 1.5rem;
-  text-align: center;
+  margin-bottom: 20px;
+  color: #555;
+  font-size: 1.5rem;
 }
 
-.search-form {
+.status-search {
   display: flex;
-  background-color: white;
-  padding: 1.5rem;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  margin-bottom: 2rem;
+  margin-bottom: 30px;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
-.search-form .form-group {
+.status-search input {
   flex: 1;
-  margin-bottom: 0;
-  margin-right: 1rem;
+  padding: 12px 15px;
+  border: 1px solid #ddd;
+  border-radius: 4px 0 0 4px;
+  font-size: 1rem;
 }
 
-.search-button {
-  padding: 0.8rem 1.5rem;
-  background-color: #3498db;
+.status-search button {
+  padding: 12px 20px;
+  background-color: #1976d2;
   color: white;
-  font-weight: 600;
   border: none;
-  border-radius: 4px;
+  border-radius: 0 4px 4px 0;
+  font-size: 1rem;
   cursor: pointer;
   transition: background-color 0.3s;
-  align-self: flex-end;
 }
 
-.search-button:hover {
-  background-color: #2980b9;
-}
-
-.loading {
-  text-align: center;
-  padding: 1rem;
-  color: #7f8c8d;
-  font-weight: 500;
+.status-search button:hover {
+  background-color: #1565c0;
 }
 
 .error-message {
-  background-color: #f8d7da;
-  color: #721c24;
-  padding: 1rem;
+  background-color: #ffebee;
+  color: #d32f2f;
+  padding: 15px;
   border-radius: 4px;
-  margin-bottom: 2rem;
+  margin-bottom: 20px;
   text-align: center;
 }
 
-.report-status {
+.status-result {
   background-color: white;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  padding: 2rem;
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  margin-bottom: 30px;
 }
 
-.status-card {
-  margin-bottom: 2rem;
+.status-details {
+  margin-bottom: 25px;
 }
 
 .status-row {
   display: flex;
-  padding: 1rem 0;
+  padding: 12px 0;
   border-bottom: 1px solid #eee;
 }
 
@@ -84,78 +79,82 @@
   border-bottom: none;
 }
 
-.label {
-  font-weight: 600;
-  width: 150px;
-  color: #34495e;
+.status-label {
+  flex: 0 0 150px;
+  font-weight: 500;
+  color: #555;
 }
 
-.value {
+.status-value {
   flex: 1;
 }
 
-.status-badge {
-  display: inline-block;
-  padding: 0.35rem 0.75rem;
-  border-radius: 20px;
-  font-size: 0.85rem;
-  font-weight: 600;
-}
-
 .status-pending {
-  background-color: #ffeeba;
-  color: #856404;
+  color: #ff8f00;
 }
 
 .status-accepted {
-  background-color: #d4edda;
-  color: #155724;
+  color: #2e7d32;
 }
 
 .status-flagged {
-  background-color: #f8d7da;
-  color: #721c24;
+  color: #c62828;
+}
+
+.status-message {
+  background-color: #f5f5f5;
+  padding: 15px;
+  border-radius: 4px;
+  margin-top: 20px;
+}
+
+.status-message p {
+  margin: 0;
+  color: #333;
 }
 
 .back-button {
-  background-color: #6c757d;
-  color: white;
-  padding: 0.8rem 1.5rem;
-  font-size: 1rem;
-  font-weight: 600;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.3s;
   display: block;
   margin: 0 auto;
+  padding: 10px 20px;
+  background-color: transparent;
+  color: #1976d2;
+  border: 1px solid #1976d2;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s;
 }
 
 .back-button:hover {
-  background-color: #5a6268;
+  background-color: #1976d2;
+  color: white;
 }
 
-@media (max-width: 768px) {
-  .search-form {
+@media (max-width: 600px) {
+  .check-status-container h1 {
+    font-size: 1.8rem;
+  }
+  
+  .status-search {
     flex-direction: column;
   }
   
-  .search-form .form-group {
-    margin-right: 0;
-    margin-bottom: 1rem;
+  .status-search input {
+    border-radius: 4px;
+    margin-bottom: 10px;
   }
   
-  .search-button {
-    width: 100%;
+  .status-search button {
+    border-radius: 4px;
   }
   
   .status-row {
     flex-direction: column;
-    padding: 0.75rem 0;
+    padding: 15px 0;
   }
   
-  .label {
-    width: 100%;
-    margin-bottom: 0.25rem;
+  .status-label {
+    margin-bottom: 5px;
   }
 } 
