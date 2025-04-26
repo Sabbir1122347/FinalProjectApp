@@ -1,80 +1,81 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { collection, getDocs, updateDoc, doc } from 'firebase/firestore';
+import { db } from '../firebase'; // make sure this path is correct
 import '../styles/AdminHome.css';
 
 const AdminHome = () => {
   const navigate = useNavigate();
-  
-  // Mock data for reports
-  const [reports, setReports] = useState([
-    { id: 'R001', category: 'Environmental', description: 'Illegal dumping near River Thames', status: 'Pending', date: '2023-05-15' },
-    { id: 'R002', category: 'Transport', description: 'Damaged traffic light at High Street', status: 'Accepted', date: '2023-05-14' },
-    { id: 'R003', category: 'Community', description: 'Graffiti on community center wall', status: 'Flagged', date: '2023-05-13' },
-    { id: 'R004', category: 'Educational', description: 'Broken playground equipment at primary school', status: 'Pending', date: '2023-05-12' },
-    { id: 'R005', category: 'Other', description: 'Suspicious activity near the park', status: 'Accepted', date: '2023-05-11' },
-  ]);
+  const [reports, setReports] = useState([]);
 
-  const handleStatusChange = (reportId, newStatus) => {
-    setReports(reports.map(report => 
-      report.id === reportId ? { ...report, status: newStatus } : report
-    ));
-  };
+  useEffect(() => {
+    const fetchReports = async () => {
+      const querySnapshot = await getDocs(collection(db, 'reports'));
+      const reportsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setReports(reportsData);
+    };
 
-  const getStatusClass = (status) => {
-    switch(status) {
-      case 'Pending': return 'status-pending';
-      case 'Accepted': return 'status-accepted';
-      case 'Flagged': return 'status-flagged';
-      default: return '';
-    }
+    fetchReports();
+  }, []);
+
+  const handleStatusChange = async (reportId, newStatus) => {
+    const reportRef = doc(db, 'reports', reportId);
+    await updateDoc(reportRef, { status: newStatus });
+    setReports(prevReports =>
+      prevReports.map(report =>
+        report.id === reportId ? { ...report, status: newStatus } : report
+      )
+    );
   };
 
   return (
     <div className="admin-home-container">
-      <h1>Admin Dashboard</h1>
-      <h2>Submitted Reports</h2>
-      
-      <div className="reports-list">
-        <div className="report-header">
-          <div className="report-id">ID</div>
-          <div className="report-category">Category</div>
-          <div className="report-description">Description</div>
-          <div className="report-date">Date</div>
-          <div className="report-status">Status</div>
-          <div className="report-actions">Actions</div>
+      <h1>Submitted Reports</h1>
+      <div className="reports-table">
+        <div className="reports-header">
+          <div>ID</div>
+          <div>Category</div>
+          <div>Description</div>
+          <div>Date</div>
+          <div>Status</div>
+          <div>Evidence</div>
+          <div>Actions</div>
         </div>
-        
-        {reports.map(report => (
-          <div key={report.id} className="report-item">
-            <div className="report-id">{report.id}</div>
-            <div className="report-category">{report.category}</div>
-            <div className="report-description">{report.description}</div>
-            <div className="report-date">{report.date}</div>
-            <div className={`report-status ${getStatusClass(report.status)}`}>
-              {report.status}
+        {reports.map((report) => (
+          <div key={report.id} className="reports-row">
+            <div>{report.id}</div>
+            <div>{report.category}</div>
+            <div className="description-cell">{report.description}</div>
+            <div>{report.date}</div>
+            <div className={`status ${report.status?.toLowerCase()}`}>{report.status}</div>
+            <div>
+              {report.fileUrl ? (
+                <a href={report.fileUrl} target="_blank" rel="noopener noreferrer">
+                  <img src={report.fileUrl} alt="Evidence" className="evidence-image" />
+                </a>
+              ) : (
+                "No Evidence"
+              )}
             </div>
-            <div className="report-actions">
-              <select 
+            <div>
+              <select
                 value={report.status}
                 onChange={(e) => handleStatusChange(report.id, e.target.value)}
               >
-                <option value="Pending">Pending</option>
-                <option value="Accepted">Accepted</option>
-                <option value="Flagged">Flagged</option>
+                <option value="pending">Pending</option>
+                <option value="accepted">Accepted</option>
+                <option value="flagged">Flagged</option>
               </select>
             </div>
           </div>
         ))}
       </div>
-      
-      <button 
-        className="logout-button"
-        onClick={() => navigate('/')}
-      >
+
+      <button className="logout-button" onClick={() => navigate('/')}>
         Logout
       </button>
     </div>
   );
 };
 
-export default AdminHome; 
+export default AdminHome;
