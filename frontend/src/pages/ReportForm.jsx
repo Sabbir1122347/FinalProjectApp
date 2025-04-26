@@ -80,14 +80,23 @@ const ReportForm = () => {
     try {
       let fileUrl = null;
 
-      // Upload file if provided
       if (formData.file) {
+        console.log("Uploading file:", formData.file.name);  // Debug
+
         const fileRef = ref(storage, `evidence/${Date.now()}_${formData.file.name}`);
-        const snapshot = await uploadBytes(fileRef, formData.file);
+        const metadata = {
+          contentType: formData.file.type,
+        };
+        
+        const snapshot = await uploadBytes(fileRef, formData.file, metadata);
+        
+
+        console.log("Upload complete. Getting download URL...");  // Debug
         fileUrl = await getDownloadURL(snapshot.ref);
+
+        console.log("File URL:", fileUrl);  // Debug
       }
 
-      // Save report to Firestore
       const docRef = await addDoc(collection(db, 'reports'), {
         category: categoryId,
         subcategory: formData.subcategory,
@@ -100,10 +109,12 @@ const ReportForm = () => {
         submittedAt: Timestamp.now()
       });
 
+      console.log("Report submitted. ID:", docRef.id);  // Debug
       setReportId(docRef.id);
       setSubmitted(true);
+
     } catch (err) {
-      console.error("Error submitting report:", err);
+      console.error("❌ Error submitting report:", err);  // Debug
       alert("Something went wrong. Please try again.");
     }
   };
