@@ -9,7 +9,7 @@ const AdminHome = () => {
   const [reports, setReports] = useState([]);
   const [filter, setFilter] = useState('All');
 
-  // Fetch reports from Firestore when page loads
+  // get reports from Firestore when page loads
   useEffect(() => {
     const fetchReports = async () => {
       try {
@@ -69,7 +69,7 @@ const AdminHome = () => {
 
   return (
     <div className="admin-home-container">
-      {/* Header with Logo, Title, Logout */}
+      {/* Header with Logo, Title, Logout button*/}
       <div className="admin-header">
         <img src="/Logo.png" alt="Logo" className="admin-logo" />
         <h1 className="admin-title">Admin Dashboard</h1>

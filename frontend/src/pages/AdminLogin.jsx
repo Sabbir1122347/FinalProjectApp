@@ -5,12 +5,16 @@ import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'fire
 import '../styles/AdminLogin.css';
 
 const AdminLogin = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [isRegistering, setIsRegistering] = useState(false);
-  const navigate = useNavigate();
+  const [email, setEmail] = useState(''); // save email
+  const [password, setPassword] = useState(''); // save password
+  const [adminCode, setAdminCode] = useState(''); // save admin code
+  const [error, setError] = useState(''); // save error message
+  const [isRegistering, setIsRegistering] = useState(false); // check if user is creating account
+  const navigate = useNavigate(); // for moving pages
 
+  const SECRET_CODE = "2001"; // Admin secret code
+
+  // Login to admin page
   const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
@@ -24,45 +28,55 @@ const AdminLogin = () => {
       await signInWithEmailAndPassword(auth, email, password);
       navigate('/admin-home');
     } catch (err) {
-      setError('Invalid credentials. Please try again.');
+      setError('Invalid email or password.');
       console.error(err);
     }
   };
 
+  // Create new admin account
   const handleRegister = async (e) => {
     e.preventDefault();
     setError('');
 
-    if (!email || !password) {
-      setError('Please enter both email and password.');
+    if (!email || !password || !adminCode) {
+      setError('Please fill all fields.');
+      return;
+    }
+
+    if (adminCode !== SECRET_CODE) {
+      setError('Wrong Admin Code.');
       return;
     }
 
     try {
       await createUserWithEmailAndPassword(auth, email, password);
-      alert('Admin account created successfully! You can now log in.');
+      alert('Admin account created. You can log in now.');
       setIsRegistering(false);
       setEmail('');
       setPassword('');
+      setAdminCode('');
     } catch (err) {
-      setError('Failed to create account. Email might already be used.');
+      setError('Failed to create account. Maybe email already used.');
       console.error(err);
     }
   };
 
   return (
     <div className="admin-login-container">
+      {/* Page title */}
       <h1>Admin {isRegistering ? 'Register' : 'Login'}</h1>
 
+      {/* Show any error */}
       {error && <div className="error-message">{error}</div>}
 
-      {!isRegistering ? (
+      {/* Login form */}
+      {!isRegistering && (
         <form className="admin-login-form" onSubmit={handleLogin}>
           <div className="form-group">
             <label>Email:</label>
             <input
               type="email"
-              placeholder="Enter admin email"
+              placeholder="Enter email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
@@ -89,13 +103,16 @@ const AdminLogin = () => {
             </button>
           </div>
         </form>
-      ) : (
+      )}
+
+      {/* Register form */}
+      {isRegistering && (
         <form className="admin-login-form" onSubmit={handleRegister}>
           <div className="form-group">
             <label>Email:</label>
             <input
               type="email"
-              placeholder="Enter new admin email"
+              placeholder="Enter email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
@@ -105,9 +122,19 @@ const AdminLogin = () => {
             <label>Password:</label>
             <input
               type="password"
-              placeholder="Enter new password"
+              placeholder="Enter password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Admin Code:</label>
+            <input
+              type="text"
+              placeholder="Enter Admin Code"
+              value={adminCode}
+              onChange={(e) => setAdminCode(e.target.value)}
             />
           </div>
 
@@ -116,7 +143,10 @@ const AdminLogin = () => {
             <button
               type="button"
               className="cancel-button"
-              onClick={() => setIsRegistering(false)}
+              onClick={() => {
+                setIsRegistering(false);
+                setAdminCode('');
+              }}
             >
               Cancel
             </button>
@@ -124,6 +154,7 @@ const AdminLogin = () => {
         </form>
       )}
 
+      {/* Back button */}
       <button className="back-button" onClick={() => navigate('/')}>
         Back to Main
       </button>
