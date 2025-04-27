@@ -8,9 +8,7 @@ const AdminLogin = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [showPopup, setShowPopup] = useState(false);
-  const [registerEmail, setRegisterEmail] = useState('');
-  const [registerPassword, setRegisterPassword] = useState('');
+  const [isRegistering, setIsRegistering] = useState(false);
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
@@ -18,7 +16,7 @@ const AdminLogin = () => {
     setError('');
 
     if (!email || !password) {
-      setError('Please enter both email and password');
+      setError('Please enter both email and password.');
       return;
     }
 
@@ -31,117 +29,104 @@ const AdminLogin = () => {
     }
   };
 
-  const handleRegister = async () => {
+  const handleRegister = async (e) => {
+    e.preventDefault();
     setError('');
 
-    if (!registerEmail || !registerPassword) {
-      setError('Please fill in both fields');
+    if (!email || !password) {
+      setError('Please enter both email and password.');
       return;
     }
 
     try {
-      await createUserWithEmailAndPassword(auth, registerEmail, registerPassword);
+      await createUserWithEmailAndPassword(auth, email, password);
       alert('Admin account created successfully! You can now log in.');
-      setShowPopup(false);
-      setRegisterEmail('');
-      setRegisterPassword('');
+      setIsRegistering(false);
+      setEmail('');
+      setPassword('');
     } catch (err) {
-      setError('Failed to create account. Email might already exist.');
+      setError('Failed to create account. Email might already be used.');
       console.error(err);
     }
   };
 
-  const openPopup = () => {
-    setShowPopup(true);
-  };
-
-  const closePopup = () => {
-    setShowPopup(false);
-    setRegisterEmail('');
-    setRegisterPassword('');
-  };
-
   return (
     <div className="admin-login-container">
-      <h1>Admin Login</h1>
-      <form className="admin-login-form" onSubmit={handleLogin}>
-        {error && <div className="error-message">{error}</div>}
+      <h1>Admin {isRegistering ? 'Register' : 'Login'}</h1>
 
-        <div className="form-group">
-          <label htmlFor="email">Email:</label>
-          <input
-            type="email"
-            id="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Enter your admin email"
-            required
-          />
-        </div>
+      {error && <div className="error-message">{error}</div>}
 
-        <div className="form-group">
-          <label htmlFor="password">Password:</label>
-          <input
-            type="password"
-            id="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Enter your password"
-            required
-          />
-        </div>
-
-        <div className="form-buttons">
-          <button type="submit" className="login-button">Login</button>
-          <button 
-            type="button" 
-            className="register-button" 
-            onClick={openPopup}
-          >
-            Create Admin Account
-          </button>
-        </div>
-      </form>
-
-      <button 
-        className="back-button"
-        onClick={() => navigate('/')}
-      >
-        Back to Main
-      </button>
-
-      {/* Popup for creating admin account */}
-      {showPopup && (
-        <div className="popup-overlay">
-          <div className="popup-content">
-            <h2>Create Admin Account</h2>
-
+      {!isRegistering ? (
+        <form className="admin-login-form" onSubmit={handleLogin}>
+          <div className="form-group">
+            <label>Email:</label>
             <input
               type="email"
-              value={registerEmail}
-              onChange={(e) => setRegisterEmail(e.target.value)}
-              placeholder="Enter new admin email"
-              className="popup-input"
+              placeholder="Enter admin email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
             />
+          </div>
+
+          <div className="form-group">
+            <label>Password:</label>
             <input
               type="password"
-              value={registerPassword}
-              onChange={(e) => setRegisterPassword(e.target.value)}
-              placeholder="Enter new password"
-              className="popup-input"
+              placeholder="Enter password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
             />
-
-            <div className="popup-buttons">
-              <button onClick={handleRegister} className="popup-button register">
-                Register
-              </button>
-              <button onClick={closePopup} className="popup-button cancel">
-                Cancel
-              </button>
-            </div>
           </div>
-        </div>
+
+          <div className="form-buttons">
+            <button type="submit" className="login-button">Login</button>
+            <button
+              type="button"
+              className="register-button"
+              onClick={() => setIsRegistering(true)}
+            >
+              Create Account
+            </button>
+          </div>
+        </form>
+      ) : (
+        <form className="admin-login-form" onSubmit={handleRegister}>
+          <div className="form-group">
+            <label>Email:</label>
+            <input
+              type="email"
+              placeholder="Enter new admin email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Password:</label>
+            <input
+              type="password"
+              placeholder="Enter new password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </div>
+
+          <div className="form-buttons">
+            <button type="submit" className="create-button">Create</button>
+            <button
+              type="button"
+              className="cancel-button"
+              onClick={() => setIsRegistering(false)}
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
       )}
+
+      <button className="back-button" onClick={() => navigate('/')}>
+        Back to Main
+      </button>
     </div>
   );
 };
