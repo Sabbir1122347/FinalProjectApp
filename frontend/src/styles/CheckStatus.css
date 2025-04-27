@@ -1,160 +1,89 @@
 .check-status-container {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 30px 20px;
+  max-width: 600px;
+  margin: 40px auto;
+  padding: 30px;
+  background-color: #f9f9f9;
+  border-radius: 12px;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+  text-align: center;
 }
 
 .check-status-container h1 {
-  margin-bottom: 30px;
-  color: #333;
-  font-size: 2rem;
-  text-align: center;
-}
-
-.check-status-container h2 {
   margin-bottom: 20px;
-  color: #555;
-  font-size: 1.5rem;
+  font-size: 28px;
+  color: #333;
 }
 
-.status-search {
+.check-form {
   display: flex;
-  margin-bottom: 30px;
-  max-width: 600px;
-  margin-left: auto;
-  margin-right: auto;
+  gap: 10px;
+  margin-bottom: 20px;
 }
 
-.status-search input {
+.check-form input {
   flex: 1;
-  padding: 12px 15px;
-  border: 1px solid #ddd;
-  border-radius: 4px 0 0 4px;
-  font-size: 1rem;
+  padding: 10px;
+  font-size: 16px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
 }
 
-.status-search button {
-  padding: 12px 20px;
-  background-color: #1976d2;
+.check-form button {
+  padding: 10px 20px;
+  background-color: #4285f4;
   color: white;
+  font-size: 16px;
   border: none;
-  border-radius: 0 4px 4px 0;
-  font-size: 1rem;
+  border-radius: 8px;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: background-color 0.2s ease;
 }
 
-.status-search button:hover {
-  background-color: #1565c0;
+.check-form button:hover {
+  background-color: #357ae8;
 }
 
 .error-message {
-  background-color: #ffebee;
-  color: #d32f2f;
-  padding: 15px;
-  border-radius: 4px;
-  margin-bottom: 20px;
-  text-align: center;
-}
-
-.status-result {
-  background-color: white;
-  padding: 30px;
+  background-color: #ffe0e0;
+  color: #d9534f;
+  padding: 10px;
   border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  margin-bottom: 30px;
+  margin-top: 10px;
+  font-size: 16px;
 }
 
-.status-details {
-  margin-bottom: 25px;
+.report-details {
+  margin-top: 20px;
+  text-align: left;
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 10px;
+  border: 1px solid #e0e0e0;
 }
 
-.status-row {
-  display: flex;
-  padding: 12px 0;
-  border-bottom: 1px solid #eee;
+.report-details h2 {
+  font-size: 22px;
+  margin-bottom: 15px;
 }
 
-.status-row:last-child {
-  border-bottom: none;
-}
-
-.status-label {
-  flex: 0 0 150px;
-  font-weight: 500;
+.report-details p {
+  margin: 8px 0;
+  font-size: 16px;
   color: #555;
 }
 
-.status-value {
-  flex: 1;
-}
-
-.status-pending {
-  color: #ff8f00;
-}
-
-.status-accepted {
-  color: #2e7d32;
-}
-
-.status-flagged {
-  color: #c62828;
-}
-
-.status-message {
-  background-color: #f5f5f5;
-  padding: 15px;
-  border-radius: 4px;
-  margin-top: 20px;
-}
-
-.status-message p {
-  margin: 0;
-  color: #333;
-}
-
 .back-button {
-  display: block;
-  margin: 0 auto;
+  margin-top: 20px;
   padding: 10px 20px;
-  background-color: transparent;
-  color: #1976d2;
-  border: 1px solid #1976d2;
-  border-radius: 4px;
-  font-size: 1rem;
+  background-color: #f44336;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: background-color 0.2s ease;
 }
 
 .back-button:hover {
-  background-color: #1976d2;
-  color: white;
+  background-color: #d32f2f;
 }
-
-@media (max-width: 600px) {
-  .check-status-container h1 {
-    font-size: 1.8rem;
-  }
-  
-  .status-search {
-    flex-direction: column;
-  }
-  
-  .status-search input {
-    border-radius: 4px;
-    margin-bottom: 10px;
-  }
-  
-  .status-search button {
-    border-radius: 4px;
-  }
-  
-  .status-row {
-    flex-direction: column;
-    padding: 15px 0;
-  }
-  
-  .status-label {
-    margin-bottom: 5px;
-  }
-} 
