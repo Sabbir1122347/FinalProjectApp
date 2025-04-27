@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { db, storage } from '../firebase';
-import { collection, addDoc, getDocs, Timestamp } from 'firebase/firestore';
+import { collection, addDoc, Timestamp } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
 import ReCAPTCHA from 'react-google-recaptcha';
+import L from 'leaflet';
+import markerIconPng from 'leaflet/dist/images/marker-icon.png';
+import markerShadowPng from 'leaflet/dist/images/marker-shadow.png';
 import '../styles/ReportForm.css';
 import 'leaflet/dist/leaflet.css';
 
@@ -28,6 +31,9 @@ const ReportForm = () => {
   const [reportId, setReportId] = useState('');
   const [customReportId, setCustomReportId] = useState('');
   const [captchaVerified, setCaptchaVerified] = useState(false);
+
+  const todayDate = new Date().toISOString().split('T')[0];
+  const nowTime = new Date().toLocaleTimeString('en-GB', { hour12: false }).slice(0,5);
 
   useEffect(() => {
     const categoryMap = {
@@ -59,13 +65,6 @@ const ReportForm = () => {
         setSubcategories([]);
     }
   }, [categoryId]);
-
-  const generateCustomId = async () => {
-    const reportsSnapshot = await getDocs(collection(db, 'reports'));
-    const reportCount = reportsSnapshot.size;
-    const nextId = (reportCount + 1).toString().padStart(4, '0');
-    return nextId;
-  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -114,9 +113,8 @@ const ReportForm = () => {
     }
 
     try {
-      const nextCustomId = await generateCustomId();
-
       let fileUrl = null;
+
       if (formData.file) {
         const fileRef = ref(storage, `evidence/${Date.now()}_${formData.file.name}`);
         const snapshot = await uploadBytes(fileRef, formData.file);
@@ -142,16 +140,13 @@ const ReportForm = () => {
       });
 
       setReportId(docRef.id);
-      setCustomReportId(nextCustomId);
+      setCustomReportId(docRef.id);
       setSubmitted(true);
     } catch (err) {
       console.error("Error submitting report:", err);
       alert("Something went wrong. Please try again.");
     }
   };
-
-  const todayDate = new Date().toISOString().split('T')[0];
-  const nowTime = new Date().toLocaleTimeString('en-GB', { hour12: false }).slice(0,5);
 
   if (submitted) {
     return (
@@ -232,7 +227,7 @@ const ReportForm = () => {
               name="time"
               value={formData.time}
               onChange={handleChange}
-              max={nowTime}
+              max={formData.date === todayDate ? nowTime : undefined}
               required
             />
           </div>
@@ -245,7 +240,19 @@ const ReportForm = () => {
               attribution="© OpenStreetMap contributors"
             />
             <MapClickHandler />
-            {formData.coordinates && <Marker position={formData.coordinates} />}
+            {formData.coordinates && (
+              <Marker
+                position={formData.coordinates}
+                icon={L.icon({
+                  iconUrl: markerIconPng,
+                  shadowUrl: markerShadowPng,
+                  iconSize: [25, 41],
+                  iconAnchor: [12, 41],
+                  popupAnchor: [1, -34],
+                  shadowSize: [41, 41]
+                })}
+              />
+            )}
           </MapContainer>
         </div>
         <div className="form-group">

@@ -7,7 +7,9 @@ import '../styles/AdminHome.css';
 const AdminHome = () => {
   const navigate = useNavigate();
   const [reports, setReports] = useState([]);
+  const [filter, setFilter] = useState('All');
 
+  // Fetch reports from Firestore when page loads
   useEffect(() => {
     const fetchReports = async () => {
       try {
@@ -25,6 +27,7 @@ const AdminHome = () => {
     fetchReports();
   }, []);
 
+  // Update status of a report in Firestore
   const handleStatusChange = async (reportId, newStatus) => {
     try {
       const reportRef = doc(db, 'reports', reportId);
@@ -39,6 +42,18 @@ const AdminHome = () => {
     }
   };
 
+  // Logout and go back to login page
+  const handleLogout = () => {
+    navigate('/');
+  };
+
+  // Filter reports based on selected status
+  const filteredReports = reports.filter(report => {
+    if (filter === 'All') return true;
+    return report.status.toLowerCase() === filter.toLowerCase();
+  });
+
+  // Set colour based on status
   const getStatusClass = (status) => {
     switch (status.toLowerCase()) {
       case 'pending':
@@ -52,13 +67,24 @@ const AdminHome = () => {
     }
   };
 
-  const handleLogout = () => {
-    navigate('/');
-  };
-
   return (
     <div className="admin-home-container">
-      <h1>Admin Dashboard</h1>
+      {/* Header with Logo, Title, Logout */}
+      <div className="admin-header">
+        <img src="/Logo.png" alt="Logo" className="admin-logo" />
+        <h1 className="admin-title">Admin Dashboard</h1>
+        <button onClick={handleLogout} className="logout-button">Logout</button>
+      </div>
+
+      {/* Filter Buttons */}
+      <div className="filter-buttons">
+        <button onClick={() => setFilter('All')} className={filter === 'All' ? 'active' : ''}>All</button>
+        <button onClick={() => setFilter('Pending')} className={filter === 'Pending' ? 'active' : ''}>Pending</button>
+        <button onClick={() => setFilter('Accepted')} className={filter === 'Accepted' ? 'active' : ''}>Accepted</button>
+        <button onClick={() => setFilter('Flagged')} className={filter === 'Flagged' ? 'active' : ''}>Flagged</button>
+      </div>
+
+      {/* Table showing reports */}
       <div className="report-table">
         <div className="table-header">
           <div>ID</div>
@@ -72,9 +98,10 @@ const AdminHome = () => {
           <div>Evidence</div>
         </div>
 
-        {reports.map(report => (
+        {/* Table rows */}
+        {filteredReports.map(report => (
           <div className="table-row" key={report.id}>
-            <div>{report.customId || report.id.slice(0, 8)}</div>
+            <div>{report.id}</div>
             <div>{report.category}</div>
             <div>{report.subcategory || '-'}</div>
             <div>{report.location || '-'}</div>
@@ -108,10 +135,6 @@ const AdminHome = () => {
           </div>
         ))}
       </div>
-
-      <button onClick={handleLogout} className="logout-button">
-        Logout
-      </button>
     </div>
   );
 };

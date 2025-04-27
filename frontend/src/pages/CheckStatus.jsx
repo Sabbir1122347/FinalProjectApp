@@ -24,6 +24,7 @@ const CheckStatus = () => {
     try {
       const docRef = doc(db, 'reports', id);
       const docSnap = await getDoc(docRef);
+
       if (docSnap.exists()) {
         setReportData(docSnap.data());
         setError('');
@@ -76,7 +77,7 @@ const CheckStatus = () => {
         <div className="report-details">
           <h2>Report Information</h2>
           <p><strong>Category:</strong> {reportData.category}</p>
-          <p><strong>Subcategory:</strong> {reportData.subcategory}</p>
+          <p><strong>Subcategory:</strong> {reportData.subcategory || '-'}</p>
           <p><strong>Description:</strong> {reportData.description}</p>
           <p><strong>Location:</strong> {reportData.location}</p>
           <p><strong>Date:</strong> {reportData.date}</p>
@@ -91,7 +92,7 @@ const CheckStatus = () => {
           {reportData.fileUrl && (
             <div className="evidence-image">
               <p><strong>Evidence:</strong></p>
-              <img src={reportData.fileUrl} alt="Evidence" />
+              <img src={reportData.fileUrl} alt="Evidence" className="evidence-img" />
             </div>
           )}
         </div>

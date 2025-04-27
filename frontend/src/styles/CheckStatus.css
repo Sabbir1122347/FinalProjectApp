@@ -87,3 +87,11 @@
 .back-button:hover {
   background-color: #d32f2f;
 }
+.evidence-image img {
+  max-width: 100%;
+  height: auto;
+  max-height: 300px;
+  margin-top: 10px;
+  border-radius: 8px;
+  object-fit: cover;
+}
