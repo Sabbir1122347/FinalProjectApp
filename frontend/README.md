@@ -17,5 +17,11 @@ Firebase Storage for saving uploaded files
 Firebase Authentication for Admin access
 Fully mobile responsive design
 
-### Step1
-First, make sure you have Node.js and npm installed on your system.
+### Project Structure
+
+/src
+  /components    → React components (pages, forms, dashboard)
+  /styles        → CSS files for styling
+  /firebase.js   → Firebase configuration file
+  App.js         → Main routing setup
+
