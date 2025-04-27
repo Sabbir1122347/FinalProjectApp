@@ -7,7 +7,10 @@ const LoginPage = () => {
 
   return (
     <div className="login-container">
-      <h1>Anonymous Crime Reporting</h1>
+      <div className="logo-wrapper">
+        <img src="/Logo.png" alt="Anonymous Crime Reporting" className="login-logo" />
+      </div>
+
       <div className="login-buttons">
         <button 
           className="login-button admin-button"
@@ -26,4 +29,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage; 
+export default LoginPage;

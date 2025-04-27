@@ -1,56 +1,74 @@
 .admin-home-container {
-  max-width: 1200px;
-  margin: 40px auto;
+  max-width: 1400px;
+  margin: 30px auto;
   padding: 20px;
-  background: #f9f9f9;
-  border-radius: 10px;
-  box-shadow: 0 0 12px rgba(0,0,0,0.1);
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-h1 {
+.admin-home-container h1 {
   text-align: center;
+  font-size: 2.2rem;
   margin-bottom: 30px;
   color: #333;
 }
 
-.reports-list {
+.report-table {
+  width: 100%;
   overflow-x: auto;
 }
 
-.report-header,
-.report-item {
+.table-header, .table-row {
   display: grid;
-  grid-template-columns: 1fr 1fr 2fr 1fr 1.5fr 1fr;
-  padding: 10px;
-  border-bottom: 1px solid #ccc;
+  grid-template-columns: repeat(9, 1fr);
   align-items: center;
+  text-align: center;
+  padding: 12px 10px;
+  border-bottom: 1px solid #eee;
 }
 
-.report-header {
-  font-weight: bold;
+.table-header {
   background-color: #4285f4;
   color: white;
-  border-radius: 8px;
+  font-weight: bold;
+  font-size: 1.1rem;
+  border-radius: 8px 8px 0 0;
 }
 
-.report-item:nth-child(even) {
+.table-row {
+  background-color: #f9f9f9;
+  transition: background-color 0.3s ease;
+}
+
+.table-row:hover {
   background-color: #f1f1f1;
 }
 
-.description-cell {
-  max-width: 300px;
-  word-wrap: break-word;
+.status-action {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+
+.status-action select {
+  padding: 5px;
+  font-size: 0.9rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
 }
 
 .status-badge {
-  padding: 5px 10px;
+  padding: 4px 10px;
   border-radius: 20px;
-  font-size: 14px;
-  margin-right: 8px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  text-transform: capitalize;
 }
 
 .status-pending {
-  background-color: #ffcc00;
+  background-color: #ffeb3b;
   color: #333;
 }
 
@@ -64,28 +82,42 @@ h1 {
   color: white;
 }
 
-select {
-  padding: 5px;
-  margin-top: 5px;
-  font-size: 14px;
-  border-radius: 6px;
+a {
+  color: #1976d2;
+  text-decoration: underline;
+  font-weight: bold;
+}
+
+a:hover {
+  text-decoration: none;
 }
 
 .logout-button {
-  margin-top: 30px;
   display: block;
-  margin-left: auto;
-  margin-right: auto;
-  padding: 10px 30px;
-  font-size: 16px;
+  margin: 30px auto 0;
+  padding: 12px 30px;
   background-color: #f44336;
   color: white;
   border: none;
   border-radius: 8px;
+  font-size: 1.1rem;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: background-color 0.3s;
 }
 
 .logout-button:hover {
   background-color: #d32f2f;
+}
+
+/* Make it responsive */
+@media (max-width: 900px) {
+  .table-header, .table-row {
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: auto auto auto;
+    gap: 10px;
+  }
+
+  .table-header div, .table-row div {
+    font-size: 0.9rem;
+  }
 }
