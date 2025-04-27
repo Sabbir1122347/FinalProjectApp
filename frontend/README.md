@@ -25,3 +25,12 @@ Fully mobile responsive design
   /firebase.js   → Firebase configuration file
   App.js         → Main routing setup
 
+### Admin Access
+
+Admins need to register using a special Admin Code (2001) to create an account.
+After logging in, they can:
+
+View submitted reports
+Filter reports by status (Pending, Accepted, Flagged)
+Update the status of reports
+View uploaded evidence
