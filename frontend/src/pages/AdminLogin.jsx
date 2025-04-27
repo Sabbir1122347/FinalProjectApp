@@ -8,9 +8,11 @@ const AdminLogin = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [showPopup, setShowPopup] = useState(false);
+  const [registerEmail, setRegisterEmail] = useState('');
+  const [registerPassword, setRegisterPassword] = useState('');
   const navigate = useNavigate();
 
-  // Function to handle login
   const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
@@ -29,22 +31,34 @@ const AdminLogin = () => {
     }
   };
 
-  // Function to handle account creation
   const handleRegister = async () => {
     setError('');
 
-    if (!email || !password) {
-      setError('Please enter both email and password');
+    if (!registerEmail || !registerPassword) {
+      setError('Please fill in both fields');
       return;
     }
 
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
-      alert('Admin account created successfully! Now you can log in.');
+      await createUserWithEmailAndPassword(auth, registerEmail, registerPassword);
+      alert('Admin account created successfully! You can now log in.');
+      setShowPopup(false);
+      setRegisterEmail('');
+      setRegisterPassword('');
     } catch (err) {
-      setError('Failed to create account. Email might already be used.');
+      setError('Failed to create account. Email might already exist.');
       console.error(err);
     }
+  };
+
+  const openPopup = () => {
+    setShowPopup(true);
+  };
+
+  const closePopup = () => {
+    setShowPopup(false);
+    setRegisterEmail('');
+    setRegisterPassword('');
   };
 
   return (
@@ -82,7 +96,7 @@ const AdminLogin = () => {
           <button 
             type="button" 
             className="register-button" 
-            onClick={handleRegister}
+            onClick={openPopup}
           >
             Create Admin Account
           </button>
@@ -95,6 +109,39 @@ const AdminLogin = () => {
       >
         Back to Main
       </button>
+
+      {/* Popup for creating admin account */}
+      {showPopup && (
+        <div className="popup-overlay">
+          <div className="popup-content">
+            <h2>Create Admin Account</h2>
+
+            <input
+              type="email"
+              value={registerEmail}
+              onChange={(e) => setRegisterEmail(e.target.value)}
+              placeholder="Enter new admin email"
+              className="popup-input"
+            />
+            <input
+              type="password"
+              value={registerPassword}
+              onChange={(e) => setRegisterPassword(e.target.value)}
+              placeholder="Enter new password"
+              className="popup-input"
+            />
+
+            <div className="popup-buttons">
+              <button onClick={handleRegister} className="popup-button register">
+                Register
+              </button>
+              <button onClick={closePopup} className="popup-button cancel">
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

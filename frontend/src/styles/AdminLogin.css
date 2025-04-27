@@ -1,93 +1,162 @@
+/* AdminLogin.css */
+
 .admin-login-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh;
-  background-color: #f5f5f5;
-  padding: 20px;
+  max-width: 400px;
+  margin: 50px auto;
+  padding: 2rem;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
 }
 
 .admin-login-container h1 {
-  margin-bottom: 30px;
-  color: #333;
+  margin-bottom: 1.5rem;
   font-size: 2rem;
+  color: #333;
 }
 
 .admin-login-form {
-  background-color: white;
-  padding: 30px;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  width: 100%;
-  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
 .form-group {
-  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  text-align: left;
 }
 
 .form-group label {
-  display: block;
-  margin-bottom: 8px;
-  font-weight: 500;
-  color: #333;
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+  color: #555;
 }
 
 .form-group input {
-  width: 100%;
-  padding: 12px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  padding: 0.7rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
   font-size: 1rem;
 }
 
-.error-message {
-  background-color: #ffebee;
-  color: #d32f2f;
-  padding: 10px;
-  border-radius: 4px;
-  margin-bottom: 20px;
-  font-size: 0.9rem;
+.login-button,
+.register-button,
+.back-button {
+  margin-top: 1rem;
+  padding: 0.8rem;
+  font-size: 1rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s ease;
 }
 
 .login-button {
-  background-color: #1976d2;
+  background-color: #4caf50;
   color: white;
-  padding: 12px 20px;
-  border: none;
-  border-radius: 4px;
-  font-size: 1rem;
-  font-weight: 500;
-  cursor: pointer;
-  width: 100%;
-  transition: background-color 0.3s;
 }
 
 .login-button:hover {
-  background-color: #1565c0;
+  background-color: #45a049;
+}
+
+.register-button {
+  background-color: #2196f3;
+  color: white;
+}
+
+.register-button:hover {
+  background-color: #1e87e0;
 }
 
 .back-button {
-  margin-top: 20px;
-  background-color: transparent;
-  color: #1976d2;
-  border: none;
-  cursor: pointer;
-  font-size: 0.9rem;
-  text-decoration: underline;
+  background: none;
+  border: 1px solid #2196f3;
+  color: #2196f3;
+  margin-top: 1.5rem;
 }
 
 .back-button:hover {
-  color: #1565c0;
+  background-color: #e3f2fd;
 }
 
-@media (max-width: 600px) {
-  .admin-login-container h1 {
-    font-size: 1.8rem;
-  }
-  
-  .admin-login-form {
-    padding: 20px;
-  }
-} 
+/* Popup Styles */
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.popup-content {
+  background: #ffffff;
+  padding: 2rem;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+  position: relative;
+}
+
+.popup-content h2 {
+  margin-bottom: 1.5rem;
+  font-size: 1.8rem;
+  color: #333;
+}
+
+.popup-input {
+  width: 100%;
+  padding: 0.7rem;
+  margin-bottom: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+.popup-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.popup-button {
+  padding: 0.7rem 1.2rem;
+  font-size: 1rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.popup-button.register {
+  background-color: #4caf50;
+  color: white;
+}
+
+.popup-button.register:hover {
+  background-color: #45a049;
+}
+
+.popup-button.cancel {
+  background-color: #f44336;
+  color: white;
+}
+
+.popup-button.cancel:hover {
+  background-color: #e53935;
+}
+
+.error-message {
+  color: red;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}

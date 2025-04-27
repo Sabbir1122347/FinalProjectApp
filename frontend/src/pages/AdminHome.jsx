@@ -1,97 +1,149 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { collection, getDocs, updateDoc, doc } from 'firebase/firestore';
-import { db } from '../firebase';
-import '../styles/AdminHome.css';
+import { auth } from '../firebase';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
+import '../styles/AdminLogin.css';
 
-const AdminHome = () => {
+const AdminLogin = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [showPopup, setShowPopup] = useState(false);
+  const [registerEmail, setRegisterEmail] = useState('');
+  const [registerPassword, setRegisterPassword] = useState('');
   const navigate = useNavigate();
-  const [reports, setReports] = useState([]);
-  const [search, setSearch] = useState('');
 
-  useEffect(() => {
-    const fetchReports = async () => {
-      const querySnapshot = await getDocs(collection(db, 'reports'));
-      const reportsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setReports(reportsData);
-    };
-    fetchReports();
-  }, []);
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setError('');
 
-  const handleStatusChange = async (reportId, newStatus) => {
-    const reportRef = doc(db, 'reports', reportId);
-    await updateDoc(reportRef, { status: newStatus });
-    setReports(prevReports =>
-      prevReports.map(report =>
-        report.id === reportId ? { ...report, status: newStatus } : report
-      )
-    );
+    if (!email || !password) {
+      setError('Please enter both email and password');
+      return;
+    }
+
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      navigate('/admin-home');
+    } catch (err) {
+      setError('Invalid credentials. Please try again.');
+      console.error(err);
+    }
   };
 
-  const filteredReports = reports.filter(report =>
-    report.category?.toLowerCase().includes(search.toLowerCase()) ||
-    report.description?.toLowerCase().includes(search.toLowerCase()) ||
-    report.date?.includes(search)
-  );
+  const handleRegister = async () => {
+    setError('');
+
+    if (!registerEmail || !registerPassword) {
+      setError('Please fill in both fields');
+      return;
+    }
+
+    try {
+      await createUserWithEmailAndPassword(auth, registerEmail, registerPassword);
+      alert('Admin account created successfully!');
+      setShowPopup(false);
+      setRegisterEmail('');
+      setRegisterPassword('');
+    } catch (err) {
+      setError('Failed to create account. Try a different email.');
+      console.error(err);
+    }
+  };
+
+  const openPopup = () => {
+    setShowPopup(true);
+  };
+
+  const closePopup = () => {
+    setShowPopup(false);
+    setRegisterEmail('');
+    setRegisterPassword('');
+  };
 
   return (
-    <div className="admin-home-container">
-      <h1>Submitted Reports</h1>
+    <div className="admin-login-container">
+      <h1>Admin Login</h1>
+      <form className="admin-login-form" onSubmit={handleLogin}>
+        {error && <div className="error-message">{error}</div>}
 
-      <input
-        type="text"
-        className="search-bar"
-        placeholder="Search by Category, Description, Date..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-      />
-
-      <div className="reports-table">
-        <div className="reports-header">
-          <div>ID</div>
-          <div>Category</div>
-          <div>Description</div>
-          <div>Date</div>
-          <div>Evidence</div>
-          <div>Status / Actions</div>
+        <div className="form-group">
+          <label htmlFor="email">Email:</label>
+          <input
+            type="email"
+            id="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Enter your admin email"
+            required
+          />
         </div>
 
-        {filteredReports.map((report) => (
-          <div key={report.id} className="reports-row">
-            <div>{report.id}</div>
-            <div>{report.category}</div>
-            <div>{report.description}</div>
-            <div>{report.date}</div>
-            <div className="cell-evidence">
-              {report.fileUrl ? (
-                <a href={report.fileUrl} target="_blank" rel="noopener noreferrer">
-                  <img src={report.fileUrl} alt="Evidence" className="evidence-image" />
-                </a>
-              ) : (
-                "No Evidence"
-              )}
-            </div>
-            <div>
-              <div className={`status ${report.status?.toLowerCase()}`}>{report.status}</div>
-              <select
-                value={report.status}
-                onChange={(e) => handleStatusChange(report.id, e.target.value)}
-              >
-                <option value="pending">Pending</option>
-                <option value="accepted">Accepted</option>
-                <option value="flagged">Flagged</option>
-              </select>
+        <div className="form-group">
+          <label htmlFor="password">Password:</label>
+          <input
+            type="password"
+            id="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Enter your password"
+            required
+          />
+        </div>
+
+        <button type="submit" className="login-button">Login</button>
+
+        <button 
+          type="button" 
+          className="register-button"
+          onClick={openPopup}
+        >
+          Create Admin Account
+        </button>
+      </form>
+
+      <button 
+        className="back-button"
+        onClick={() => navigate('/')}
+      >
+        Back to Main
+      </button>
+
+      {showPopup && (
+        <div className="popup-overlay">
+          <div className="popup-content">
+            <h2>Create Admin Account</h2>
+
+            <input
+              type="email"
+              value={registerEmail}
+              onChange={(e) => setRegisterEmail(e.target.value)}
+              placeholder="Enter new admin email"
+              className="popup-input"
+            />
+            <input
+              type="password"
+              value={registerPassword}
+              onChange={(e) => setRegisterPassword(e.target.value)}
+              placeholder="Enter new password"
+              className="popup-input"
+            />
+
+            <div className="popup-buttons">
+              <button onClick={handleRegister} className="popup-button register">
+                Register
+              </button>
+              <button onClick={closePopup} className="popup-button cancel">
+                Cancel
+              </button>
             </div>
           </div>
-        ))}
-      </div>
-
-      <button className="logout-button" onClick={() => navigate('/')}>
-        Logout
-      </button>
+        </div>
+      )}
     </div>
   );
 };
 
-export default AdminHome;
+export default AdminLogin;
+
 
