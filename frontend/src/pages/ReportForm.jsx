@@ -29,7 +29,6 @@ const ReportForm = () => {
   const [customReportId, setCustomReportId] = useState('');
   const [captchaVerified, setCaptchaVerified] = useState(false);
 
-  // Set category and subcategories
   useEffect(() => {
     const categoryMap = {
       'environmental': 'Environmental',
@@ -61,7 +60,6 @@ const ReportForm = () => {
     }
   }, [categoryId]);
 
-  // Generate custom report ID
   const generateCustomId = async () => {
     const reportsSnapshot = await getDocs(collection(db, 'reports'));
     const reportCount = reportsSnapshot.size;
@@ -126,7 +124,6 @@ const ReportForm = () => {
       }
 
       const docRef = await addDoc(collection(db, 'reports'), {
-        customReportId: nextCustomId,
         category: categoryId,
         subcategory: formData.subcategory,
         description: formData.description,
@@ -134,9 +131,14 @@ const ReportForm = () => {
         date: formData.date,
         time: formData.time,
         fileUrl: fileUrl,
-        coordinates: formData.coordinates,
         status: 'pending',
-        submittedAt: Timestamp.now()
+        submittedAt: Timestamp.now(),
+        coordinates: formData.coordinates
+          ? {
+              lat: formData.coordinates.lat,
+              lng: formData.coordinates.lng
+            }
+          : null
       });
 
       setReportId(docRef.id);
@@ -170,7 +172,6 @@ const ReportForm = () => {
   return (
     <div className="report-form-container">
       <h1>Submit a {categoryName} Report</h1>
-
       <form className="report-form" onSubmit={handleSubmit}>
         <div className="form-group">
           <label htmlFor="subcategory">Subcategory:</label>
@@ -187,7 +188,6 @@ const ReportForm = () => {
             ))}
           </select>
         </div>
-
         <div className="form-group">
           <label htmlFor="description">Description:</label>
           <textarea
@@ -200,7 +200,6 @@ const ReportForm = () => {
             rows={4}
           />
         </div>
-
         <div className="form-group">
           <label htmlFor="location">Location (optional description):</label>
           <input
@@ -212,7 +211,6 @@ const ReportForm = () => {
             placeholder="Write something about the location"
           />
         </div>
-
         <div className="form-row">
           <div className="form-group">
             <label htmlFor="date">Date:</label>
@@ -239,7 +237,6 @@ const ReportForm = () => {
             />
           </div>
         </div>
-
         <div className="form-group">
           <label>Select Location on Map:</label>
           <MapContainer center={[51.505, -0.09]} zoom={13} style={{ height: "300px", width: "100%", marginTop: "10px" }}>
@@ -251,7 +248,6 @@ const ReportForm = () => {
             {formData.coordinates && <Marker position={formData.coordinates} />}
           </MapContainer>
         </div>
-
         <div className="form-group">
           <label htmlFor="file">Upload Evidence (optional):</label>
           <input
@@ -262,14 +258,12 @@ const ReportForm = () => {
           />
           <small>Upload any photo, video, or document related to the incident</small>
         </div>
-
         <div className="form-group captcha-container">
           <ReCAPTCHA
             sitekey="6Lcj-yUrAAAAAFlkyGCkXaR6JfyZ2iBI4M8sdkb6"
             onChange={handleCaptchaChange}
           />
         </div>
-
         <div className="form-buttons">
           <button type="button" onClick={() => navigate('/user-home')} className="cancel-button">
             Cancel
