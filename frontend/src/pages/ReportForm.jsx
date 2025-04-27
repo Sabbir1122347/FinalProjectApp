@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import '../styles/ReportForm.css';
-
 import { db, storage } from '../firebase';
 import { collection, addDoc, Timestamp } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import ReCAPTCHA from 'react-google-recaptcha';
+import '../styles/ReportForm.css';
 
 const ReportForm = () => {
   const { categoryId } = useParams();
@@ -23,8 +23,8 @@ const ReportForm = () => {
   const [subcategories, setSubcategories] = useState([]);
   const [submitted, setSubmitted] = useState(false);
   const [reportId, setReportId] = useState('');
+  const [captchaCompleted, setCaptchaCompleted] = useState(false);
 
-  // Set category name and available subcategories
   useEffect(() => {
     const categoryMap = {
       'environmental': 'Environmental',
@@ -57,7 +57,6 @@ const ReportForm = () => {
     }
   }, [categoryId]);
 
-  // Handle input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -73,15 +72,19 @@ const ReportForm = () => {
     }));
   };
 
-  // Handle form submission and save to Firestore + Storage
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!captchaCompleted) {
+      alert("Please complete the CAPTCHA before submitting.");
+      return;
+    }
 
     try {
       let fileUrl = null;
 
       if (formData.file) {
-        console.log("Uploading file:", formData.file.name);  // Debug
+        console.log("Uploading file:", formData.file.name);
 
         const fileRef = ref(storage, `evidence/${Date.now()}_${formData.file.name}`);
         const metadata = {
@@ -89,12 +92,9 @@ const ReportForm = () => {
         };
         
         const snapshot = await uploadBytes(fileRef, formData.file, metadata);
-        
-
-        console.log("Upload complete. Getting download URL...");  // Debug
+        console.log("Upload complete. Getting download URL...");
         fileUrl = await getDownloadURL(snapshot.ref);
-
-        console.log("File URL:", fileUrl);  // Debug
+        console.log("File URL:", fileUrl);
       }
 
       const docRef = await addDoc(collection(db, 'reports'), {
@@ -109,12 +109,12 @@ const ReportForm = () => {
         submittedAt: Timestamp.now()
       });
 
-      console.log("Report submitted. ID:", docRef.id);  // Debug
+      console.log("Report submitted. ID:", docRef.id);
       setReportId(docRef.id);
       setSubmitted(true);
 
     } catch (err) {
-      console.error("❌ Error submitting report:", err);  // Debug
+      console.error("❌ Error submitting report:", err);
       alert("Something went wrong. Please try again.");
     }
   };
@@ -219,6 +219,14 @@ const ReportForm = () => {
           <small>Upload photos, videos, or documents related to the incident</small>
         </div>
 
+        <div className="form-group">
+          {/* Captcha */}
+          <ReCAPTCHA
+            sitekey="6Lcj-yUrAAAAAFlkyGCkXaR6JfyZ2iBI4M8sdkb6"
+            onChange={() => setCaptchaCompleted(true)}
+          />
+        </div>
+
         <div className="form-buttons">
           <button type="button" onClick={() => navigate('/user-home')} className="cancel-button">
             Cancel
@@ -233,3 +241,4 @@ const ReportForm = () => {
 };
 
 export default ReportForm;
+
