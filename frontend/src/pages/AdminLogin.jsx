@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { auth } from '../firebase';
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged } from 'firebase/auth';
 import '../styles/AdminLogin.css';
 
 const AdminLogin = () => {
@@ -13,6 +13,16 @@ const AdminLogin = () => {
   const navigate = useNavigate(); // for moving pages
 
   const SECRET_CODE = "2001"; // Admin secret code
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        navigate('/admin-home');
+      }
+    });
+
+    return () => unsubscribe();
+  }, [navigate]);
 
   // Login to admin page
   const handleLogin = async (e) => {

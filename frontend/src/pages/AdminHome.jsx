@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { db } from '../firebase';
+import { db, auth } from '../firebase';
 import { collection, getDocs, updateDoc, doc } from 'firebase/firestore';
+import { signOut } from 'firebase/auth';
 import '../styles/AdminHome.css';
 
 const AdminHome = () => {
@@ -43,8 +44,13 @@ const AdminHome = () => {
   };
 
   // Logout and go back to login page
-  const handleLogout = () => {
-    navigate('/');
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      navigate('/admin-login');
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
   };
 
   // Filter reports based on selected status

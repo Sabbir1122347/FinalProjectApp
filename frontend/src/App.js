@@ -9,6 +9,7 @@ import AdminHome from './pages/AdminHome';
 import UserHome from './pages/UserHome';
 import ReportForm from './pages/ReportForm';
 import CheckStatus from './pages/CheckStatus';
+import ProtectedRoute from './utils/ProtectedRoute';
 
 function App() {
   return (
@@ -17,7 +18,14 @@ function App() {
         <Routes>
           <Route path="/" element={<LoginPage />} />
           <Route path="/admin-login" element={<AdminLogin />} />
-          <Route path="/admin-home" element={<AdminHome />} />
+          <Route 
+            path="/admin-home" 
+            element={
+              <ProtectedRoute>
+                <AdminHome />
+              </ProtectedRoute>
+            } 
+          />
           <Route path="/user-home" element={<UserHome />} />
           <Route path="/report-form/:categoryId" element={<ReportForm />} />
           <Route path="/check-status" element={<CheckStatus />} />
